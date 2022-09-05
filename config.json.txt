@@ -2,7 +2,7 @@
 	"git-pull": [
     	["github", "puttehi"],
     	["repository", "bitburner-scripts"],
-    	["branch", "main"],
+    	["branch", "BN1"],
     	["download", []],
     	["new-file", []],
     	["subfolder", ""],
