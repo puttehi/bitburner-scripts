@@ -1,5 +1,7 @@
+import * as common from common.js
+
 let options;
-const argsSchema = [
+let argsSchema = [
     ['github', 'puttehi'],
     ['repository', 'bitburner-scripts'],
     ['branch', 'main'],
@@ -24,6 +26,7 @@ export function autocomplete(data, args) {
  * - Backing up your save / scripts first (try `download *` in the terminal)
  * - Ensuring you have no local changes that you don't mind getting overwritten **/
 export async function main(ns) {
+    argsSchema = common.readJsonTxtFile(ns)
     options = ns.flags(argsSchema);
     if (options.subfolder && !options.subfolder.startsWith('/'))
         options.subfolder = '/' + options.subfolder; // Game requires folders to have a leading slash. Add one if it's missing.
@@ -87,7 +90,8 @@ async function repositoryListing(ns, folder = '') {
         ns.tprint(`WARNING: Failed to get a repository listing (GitHub API request limit of 60 reached?): ${listUrl}` +
             `\nResponse Contents (if available): ${JSON.stringify(response ?? '(N/A)')}\nError: ${String(error)}`);
         // Fallback, assume the user already has a copy of all files in the repo, and use it as a directory listing
-        return ns.ls('home').filter(name => options.extension.some(ext => f.endsWith(ext)) &&
+        return ns.ls('home').filter(name => options.extension.some(ext => name.endsWith(ext)) &&
             !options['omit-folder'].some(dir => name.startsWith(dir)));
     }
 }
+
