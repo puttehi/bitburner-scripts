@@ -1,0 +1,12 @@
+{
+	"git-pull": [
+    	["github", "puttehi"],
+    	["repository", "bitburner-scripts"],
+    	["branch", "BN0"],
+    	["download", []],
+    	["new-file", []],
+    	["subfolder", ""],
+    	["extension", [".js", ".ns", ".txt", ".script"]],
+    	["omit-folder", ["/tmp/", "/trash/"]]
+	]
+}
