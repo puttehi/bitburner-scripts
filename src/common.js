@@ -1,13 +1,6 @@
 import { config } from "config.js"
 
-// Logging levels
-const LL = Object.freeze({
-    TRACE: 0,
-    DEBUG: 1,
-    INFO: 2,
-    WARN: 3,
-    ERROR: 4,
-})
+const LL = config.logging.levels
 
 /**@param {NS} ns @param {string} filepath @returns {Object} JSON obj*/
 export async function readJsonTxtFile(ns, filepath) {
@@ -25,7 +18,6 @@ export async function readJsonTxtFile(ns, filepath) {
         ns.tprint(JSON.stringify(obj))
         return obj
     }
-	
 }
 
 /**@param {NS} ns @param {string} level @param {string} message*/

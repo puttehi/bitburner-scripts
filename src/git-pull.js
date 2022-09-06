@@ -1,4 +1,4 @@
-import { readConfig } from "./common.js"
+import { config } from "./config.js"
 
 let options
 let argsSchema = [
@@ -26,10 +26,9 @@ export function autocomplete(data, args) {
  * - Backing up your save / scripts first (try `download *` in the terminal)
  * - Ensuring you have no local changes that you don't mind getting overwritten **/
 export async function main(ns) {
-    const config = await readConfig(ns)
     ns.tprint("CONFIG")
     ns.tprint(config)
-    argsSchema = config["git-pull"]
+    argsSchema = config["git_pull"]
     ns.tprint("ARGSSCHEMA")
     ns.tprint(argsSchema)
     options = ns.flags(argsSchema)
