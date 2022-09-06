@@ -1,4 +1,4 @@
-import * as common from common.js
+import { readConfig } from './common.js'
 
 let options;
 let argsSchema = [
@@ -26,7 +26,12 @@ export function autocomplete(data, args) {
  * - Backing up your save / scripts first (try `download *` in the terminal)
  * - Ensuring you have no local changes that you don't mind getting overwritten **/
 export async function main(ns) {
-    argsSchema = common.readJsonTxtFile(ns)
+    const config = await readConfig(ns)
+    ns.tprint("CONFIG")
+    ns.tprint(config)
+    argsSchema = config["git-pull"]
+    ns.tprint("ARGSSCHEMA")
+    ns.tprint(argsSchema)
     options = ns.flags(argsSchema);
     if (options.subfolder && !options.subfolder.startsWith('/'))
         options.subfolder = '/' + options.subfolder; // Game requires folders to have a leading slash. Add one if it's missing.

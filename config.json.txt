@@ -1,4 +1,7 @@
 {
+	"logging": {
+		"level": INFO
+	}
 	"git-pull": [
     	["github", "puttehi"],
     	["repository", "bitburner-scripts"],
