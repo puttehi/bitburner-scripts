@@ -1,6 +1,6 @@
-import { LL, log } from "../common.js"
-import { config } from "../config.js"
-import { ReadFromSender } from "../ports.js"
+import { LL, log } from "./common.js"
+import { config } from "./config.js"
+import { ReadFromSender } from "./ports.js"
 
 /**
  * @param {NS} ns NetScript namespace

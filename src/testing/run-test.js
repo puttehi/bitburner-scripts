@@ -1,15 +1,16 @@
-import { LL, log } from "../common.js"
-import { config } from "../config.js"
-import { SyncLibraries } from "../worker-init.js"
+import { LL, log } from "./common.js"
+import { config } from "./config.js"
+import { SyncLibraries } from "./worker-init.js"
 
 /**
  * @param {NS} ns NetScript namespace
  */
 export async function main(ns) {
+    const hosts = ["joesguns"]
     await log(ns, `Starting tests on ${hosts}`, LL.INFO)
 
     await log(ns, `Syncing libs to ${hosts}`, LL.INFO)
-    await SyncLibraries(ns, ["joesguns"])
+    await SyncLibraries(ns, hosts)
 
     await log(ns, `Putting up networking for home->joesguns `, LL.INFO)
 
