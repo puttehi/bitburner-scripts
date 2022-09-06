@@ -1,6 +1,7 @@
+export default config =
 {
 	"logging": {
-		"level": INFO
+		"level": DEBUG
 	}
 	"git-pull": [
     	["github", "puttehi"],
