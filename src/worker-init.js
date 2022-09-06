@@ -1,5 +1,5 @@
-import { LL, log } from "./common"
-import { config } from "./config"
+import { LL, log } from "./common.js"
+import { config } from "./config.js"
 
 /**
  * Sync `config.libs` to all `hosts`

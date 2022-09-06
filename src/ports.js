@@ -1,6 +1,6 @@
 import moment from "./vendor/moment.min.js"
-import { config } from "./config"
-import { log, LL } from "./common"
+import { config } from "./config.js"
+import { log, LL } from "./common.js"
 
 /**
  * @typedef {Object} MessageMetadata
@@ -190,7 +190,7 @@ export async function SendHackRequestMessage(
 export async function SendToReceiver(ns, channel, message) {
     if (!(channel in SEND_CHANNELS)) {
         // User error
-        log(
+        await log(
             ns,
             `[SendToReceiver] Invalid channel: ${channel} - Valid channels: ${SEND_CHANNELS}`,
             LL.ERROR
@@ -203,7 +203,7 @@ export async function SendToReceiver(ns, channel, message) {
         //ns.tryWritePort(port:number, data:string|number)
         ns.tryWritePort(channel, stringified)
     } catch (err) {
-        log(ns, err, LL.ERROR)
+        await log(ns, err, LL.ERROR)
         return false
     }
 
@@ -219,7 +219,7 @@ export async function SendToReceiver(ns, channel, message) {
 export async function ReadFromSender(ns, channel) {
     if (!(channel in SEND_CHANNELS)) {
         // User error
-        log(
+        await log(
             ns,
             `[ReadFromSender] Invalid channel: ${channel} - Valid channels: ${SEND_CHANNELS}`,
             LL.ERROR
@@ -235,7 +235,7 @@ export async function ReadFromSender(ns, channel) {
             message = JSON.parse(stringified)
         }
     } catch (err) {
-        log(ns, err, LL.ERROR)
+        await log(ns, err, LL.ERROR)
         return false
     }
 

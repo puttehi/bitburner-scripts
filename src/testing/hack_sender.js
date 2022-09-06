@@ -1,5 +1,5 @@
-import { log } from "../common"
-import { SendHackRequestMessage } from "../ports"
+import { log } from "../common.js"
+import { SendHackRequestMessage } from "../ports.js"
 
 /**
  * @param {NS} ns NetScript namespace

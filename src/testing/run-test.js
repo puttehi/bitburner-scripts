@@ -1,6 +1,6 @@
-import { LL, log } from "../common"
-import { config } from "../config"
-import { SyncLibraries } from "../worker-init"
+import { LL, log } from "../common.js"
+import { config } from "../config.js"
+import { SyncLibraries } from "../worker-init.js"
 
 /**
  * @param {NS} ns NetScript namespace
