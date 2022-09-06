@@ -1,6 +1,6 @@
 import { config } from "./config.js"
 
-const LL = config.logging.levels
+export const LL = config.logging.levels
 
 /**@param {NS} ns @param {string} filepath @returns {Object} JSON obj*/
 export async function readJsonTxtFile(ns, filepath) {
@@ -20,7 +20,11 @@ export async function readJsonTxtFile(ns, filepath) {
     }
 }
 
-/**@param {NS} ns @param {string} level @param {string} message*/
+/**
+ * @param {NS} ns NetScript namespace
+ * @param {import("./config.js").LogLevel} level Log level
+ * @param {string} message Log message
+ * */
 export async function log(ns, message = "\n", level = LL.DEBUG) {
     if (level < config.logging.level) return
 
