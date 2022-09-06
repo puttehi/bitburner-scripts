@@ -1,4 +1,6 @@
 import moment from "./vendor/moment.min.js"
+//import * as moment from "./vendor/moment.min.js"
+//var moment = require("./vendor/moment.min.js")
 import { config } from "./config.js"
 import { log, LL } from "./common.js"
 
@@ -38,6 +40,8 @@ import { log, LL } from "./common.js"
 
 const SEND_CHANNELS = config.io.channels.sender
 const RECV_CHANNELS = config.io.channels.receiver
+
+let _next_id = 0
 
 /**
  *

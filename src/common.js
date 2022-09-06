@@ -28,5 +28,13 @@ export async function readJsonTxtFile(ns, filepath) {
 export async function log(ns, message = "\n", level = LL.DEBUG) {
     if (level < config.logging.level) return
 
-    ns.tprint(`${level.toUpperCase()} | ${message}`)
+    let levelName = "UNKNOWN"
+    for (const [k, v] of Object.entries(config.logging.levels)) {
+        if (v == level) {
+            levelName = k
+            break
+        }
+    }
+
+    ns.tprint(`${levelName.toUpperCase()} | ${message}`)
 }

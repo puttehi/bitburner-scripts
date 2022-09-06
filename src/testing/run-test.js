@@ -15,6 +15,8 @@ export async function main(ns) {
     await log(ns, `Putting up networking for home->joesguns `, LL.INFO)
 
     //ns.exec(script: string, host: string, numThreads?: number, ...args: (string | number | boolean)[]): number
-    await ns.exec("hack_sender.js", "home", 1, "joesguns") // Start sending data to receiver
-    await ns.exec("hack_receiver.js", "joesguns", 1) // Start reading data on receiver
+    await ns.exec("testing/hack_sender.js", "home", 1, "joesguns") // Start sending data to receiver
+    await ns.exec("testing/hack_receiver.js", "joesguns", 1) // Start reading data on receiver
+
+    await log(ns, `Networking established. `, LL.INFO)
 }
