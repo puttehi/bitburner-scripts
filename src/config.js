@@ -52,4 +52,12 @@ export const config = {
         },
         timestamp_format: "YYYY-MM-DD HH:mm:ss:SSSSSSSSS", // https://momentjs.com/docs/#/parsing/string-format/
     },
+    libs: [
+        "vendor/moment.min.js",
+        "common.js",
+        "config.js",
+        "ports.js",
+        "testing/hack_receiver.js",
+        "testing/hack_sender.js",
+    ],
 }

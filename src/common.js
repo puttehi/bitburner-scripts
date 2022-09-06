@@ -5,16 +5,16 @@ export const LL = config.logging.levels
 /**@param {NS} ns @param {string} filepath @returns {Object} JSON obj*/
 export async function readJsonTxtFile(ns, filepath) {
     const content = ns.read(filepath)
-    log(ns, "CONTENT")
+    await log(ns, "CONTENT")
     ns.tprint(content)
     let obj = {}
     try {
         obj = JSON.parse(content)
     } catch (err) {
-        log(ns, err, LL.ERROR)
+        await log(ns, err, LL.ERROR)
         throw err
     } finally {
-        log(ns, "OBJ")
+        await log(ns, "OBJ")
         ns.tprint(JSON.stringify(obj))
         return obj
     }
