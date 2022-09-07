@@ -1,6 +1,12 @@
-import moment from "./vendor/moment.min.js"
+//import moment from "./vendor/moment.min.js"
 //import * as moment from "./vendor/moment.min.js"
 //var moment = require("./vendor/moment.min.js")
+//var moment = await require("https://momentjs.com/downloads/moment.min.js")
+//var moment = require("//vendor/moment.min")
+//import moment from "https://momentjs.com/downloads/moment.js"
+//var moment = import("https://momentjs.com/downloads/moment.js").moment
+var moment = import("./vendor/moment.min.js").moment
+//import { moment } from "./vendor/moment.min.js"
 import { config } from "./config.js"
 import { log, LL } from "./common.js"
 
@@ -64,7 +70,7 @@ function CreateMessageMetadata(
         type: "base",
         sender: sender,
         receiver: receiver,
-        timestamp: CreateTimestamp(),
+        timestamp: CreateTimestamp(ns),
         recv_max_rejects: recv_max_rejects,
         send_max_rejects: send_max_rejects,
         recv_rejects: 0,
@@ -77,13 +83,15 @@ function CreateMessageMetadata(
 function NextMessageId() {
     const id = _next_id
 
-    next_id += 1
+    _next_id += 1
 
     return id
 }
 
-function CreateTimestamp() {
+function CreateTimestamp(ns) {
     const format = config.io.timestamp_format
+
+    log(ns, moment, LL.DEBUG)
 
     const timestamp = moment().format(format)
 
