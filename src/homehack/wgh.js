@@ -42,6 +42,7 @@ export async function main(ns) {
             const weakenTime = ns.getWeakenTime(host)
             const hackTime = ns.getHackTime(host)
             const growTime = ns.getGrowTime(host)
+
             await log(
                 ns,
                 `Weakening ${host} | Duration: ${weakenTime}`,
@@ -73,17 +74,19 @@ export async function main(ns) {
                 `Weaken ${reducedSecurity2} security from ${host}`,
                 LL.INFO
             )
-            await log(ns, `Growing ${host} | Duration: ${growTime}`, LL.INFO)
+            await log(ns, `Hacking ${host} | Duration: ${hackTime}`, LL.INFO)
             const stolenMoney = await ns.hack(host, {
                 threads: usedRam * hackCost,
             })
             await log(ns, `Hack \$${stolenMoney} from ${host}`, LL.INFO)
         }
 
-        await log(ns, `Exiting`, LL.INFO)
+        await log(ns, `Loop done.`, LL.INFO)
 
         await ns.sleep(50)
     }
+
+    await log(ns, `Exiting.`, LL.INFO)
 
     return
 }
