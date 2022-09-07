@@ -1,8 +1,12 @@
-import { config } from "./config.js"
+import { config } from "config"
 
 export const LL = config.logging.levels
 
-/**@param {NS} ns @param {string} filepath @returns {Object} JSON obj*/
+/**
+ * Deprecated: Read a json.txt file to an object
+ * @param {NS} ns
+ * @param {string} filepath
+ * @returns {Object} JSON obj*/
 export async function readJsonTxtFile(ns, filepath) {
     const content = ns.read(filepath)
     await log(ns, "CONTENT")

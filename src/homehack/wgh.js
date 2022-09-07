@@ -1,4 +1,4 @@
-import { LL, log } from "./common.js"
+import { LL, log } from "common"
 // import { config } from "./config.js"
 
 /**

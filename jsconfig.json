@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "allowJs": true,
+        "target": "ES6"
+    },
+    "include": ["src/**/*"],
+    "exclude": ["bitburner", "../bitburner"]
+}

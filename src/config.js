@@ -19,6 +19,7 @@ export const config = {
             INFO: 2,
             WARN: 3,
             ERROR: 4,
+            HELP: 5,
         }),
     },
     git_pull: [
