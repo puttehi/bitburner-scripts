@@ -1,0 +1,35 @@
+---
+tabWidth: 4
+trailingComma: "es5"
+singleQuote: false
+bracketSameLine: true
+useTabs: false
+arrowParens: avoid
+endOfLine: lf
+jsxSingleQuote: false
+bracketSpacing: true
+htmlWhitespaceSensitivity: css
+insertPragma: false
+singleAttributePerLine: true
+semi: false
+
+# prettier.arrowParens
+# prettier.bracketSpacing
+# prettier.endOfLine
+# prettier.htmlWhitespaceSensitivity
+# prettier.insertPragma
+# prettier.singleAttributePerLine
+# prettier.bracketSameLine
+# prettier.jsxBracketSameLine
+# prettier.jsxSingleQuote
+# prettier.printWidth
+# prettier.proseWrap
+# prettier.quoteProps
+# prettier.requirePragma
+# prettier.semi
+# prettier.singleQuote
+# prettier.tabWidth
+# prettier.trailingComma
+# prettier.useTabs
+# prettier.vueIndentScriptAndStyle
+# prettier.embeddedLanguageFormatting
