@@ -1,15 +1,13 @@
-import { config } from "config"
+import { config } from "/config"
 
 export const LL = config.logging.levels
 
 const LOG_LEVEL = config.logging.level
 
-/**
- * Deprecated: Read a json.txt file to an object
- * @param {NS} ns
- * @param {string} filepath
- * @returns {Object} JSON obj*/
-export async function readJsonTxtFile(ns, filepath) {
+export async function readJsonTxtFile(
+    ns: NS,
+    filepath: string
+): Promise<Record<string, unknown>> {
     const content = ns.read(filepath)
     await log(ns, "CONTENT")
     ns.tprint(content)
@@ -17,13 +15,13 @@ export async function readJsonTxtFile(ns, filepath) {
     try {
         obj = JSON.parse(content)
     } catch (err) {
-        await log(ns, err, LL.ERROR)
+        if (err instanceof Error) await log(ns, err.message, LL.ERROR)
         throw err
     } finally {
         await log(ns, "OBJ")
         ns.tprint(JSON.stringify(obj))
-        return obj
     }
+    return obj
 }
 
 /**
@@ -31,7 +29,11 @@ export async function readJsonTxtFile(ns, filepath) {
  * @param {import("./config.js").LogLevel} level Log level
  * @param {string} message Log message
  * */
-export async function log(ns, message = "\n", level = LL.DEBUG) {
+export async function log(
+    ns: NS,
+    message = "\n",
+    level = LL.DEBUG
+): Promise<void> {
     if (level < LOG_LEVEL) return
 
     let levelName = "UNKNOWN"
@@ -78,13 +80,13 @@ export async function log(ns, message = "\n", level = LL.DEBUG) {
  * @param {NS} ns
  * @returns
  */
-export async function deepscan(ns) {
-    let servers = new Set(["."])
+export async function deepscan(ns: NS): Promise<Array<string>> {
+    const servers = new Set(["."])
     for (const next of servers)
         ns.scan(next).forEach(server => servers.add(server))
     return [...servers]
 }
 
-export function isObject(value) {
+export function isObject(value: unknown): boolean {
     return !!(value && typeof value === "object" && !Array.isArray(value))
 }

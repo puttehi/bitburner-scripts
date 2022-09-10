@@ -1,20 +1,26 @@
-import { Publish, Subscribe } from "pubsub"
+import { MessageHandlerCallback, Publish, Subscribe } from "pubsub"
 import { log as _log, LL } from "common"
+import { LogLevels } from "/config"
 
-async function log(ns, message, prefix = "", logLevel = LL.DEBUG) {
+async function log(
+    ns: NS,
+    message: string,
+    prefix = "",
+    logLevel: LogLevels = LL.DEBUG
+): Promise<void> {
     const scriptPrefix = "[ps-dist]"
-    _log(ns, `${scriptPrefix}${prefix} ${message}`, logLevel)
+    await _log(ns, `${scriptPrefix}${prefix} ${message}`, logLevel)
 }
 
 const TARGETS = ["n00dles"]
 
-export async function main(ns) {
+export async function main(ns: NS): Promise<void> {
     let subscribed = false
     while (!subscribed) {
         subscribed = await Subscribe(
             ns,
             "hack-request-response",
-            messageHandler
+            messageHandler as MessageHandlerCallback
         )
         await ns.sleep(1000)
     }
@@ -37,8 +43,11 @@ export async function main(ns) {
     }
 }
 
-async function messageHandler(ns, msg) {
-    await log(ns, msg, `[recv]`, LL.TRACE)
+async function messageHandler(
+    ns: NS,
+    message: Record<string, unknown>
+): Promise<void> {
+    await log(ns, JSON.stringify(message), `[recv]`, LL.TRACE)
     // if (
     // msg &&
     // Object.keys(msg).some(

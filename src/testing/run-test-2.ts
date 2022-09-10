@@ -1,11 +1,11 @@
 import { LL, log } from "common"
-import { config } from "config"
+//import { config } from "config"
 import { InstallHosts } from "worker-init"
 
 /**
- * @param {NS} ns NetScript namespace
+ * @param ns NetScript namespace
  */
-export async function main(ns) {
+export async function main(ns: NS): Promise<void> {
     const hosts = ["joesguns"]
     await log(ns, `Starting tests on ${hosts}`, LL.INFO)
 
@@ -14,7 +14,7 @@ export async function main(ns) {
     const dists = ns
         .ps("home")
         .filter(script => script.filename == "/testing/ps-dist.js")
-    for (const dist of dists) ns.kill(dist.pid, "home")
+    for (const dist of dists) ns.kill(dist.filename, "home")
     await InstallHosts(ns, hosts, true)
 
     await log(ns, `Starting test scripts. `, LL.INFO)

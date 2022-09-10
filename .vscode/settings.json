@@ -18,5 +18,9 @@
 
     // Formatting
     "editor.formatOnSave": true,
-    "editor.formatOnSaveMode": "file"
+    "editor.formatOnSaveMode": "file",
+    "bitburner.authToken": "JV7vFkP57FIcp1nvesa6yJQM2DPlq31PcL0IQcA0tjMLnjc64HEDuVWMFCcO6X6I",
+    "bitburner.fileWatcher.enable": true,
+    "bitburner.showPushSuccessNotification": true,
+    "bitburner.showFileWatcherEnabledNotification": true
 }

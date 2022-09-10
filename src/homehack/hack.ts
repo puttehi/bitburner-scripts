@@ -1,10 +1,12 @@
-import { LL, log } from "common"
-// import { config } from "./config.js"
+import { NS } from "@ns"
+import { LL, log } from "/common"
 
 /**
- * @param {NS} ns NetScript namespace
+ * 0 = Success, 1 = Error, 2...n = Error specific to script
  */
-export async function main(ns) {
+type ErrorCode = number
+
+export async function main(ns: NS): Promise<ErrorCode> {
     const script = "/homehack/wgh.js"
     const ramTarget = 100 // TODO: This is wrong
     const scriptCost = ns.getScriptRam(script)
