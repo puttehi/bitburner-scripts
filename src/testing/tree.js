@@ -1,4 +1,4 @@
-import { LL, log } from "common"
+import { LL, log, isObject } from "common"
 
 const DIVIDER = "*─────────────────────────────*"
 
@@ -51,10 +51,6 @@ export async function main(ns) {
     ns.tprint("\n" + str)
 
     return 0
-}
-
-function isObject(value) {
-    return !!(value && typeof value === "object" && !Array.isArray(value))
 }
 
 export async function tree(ns, obj, accum = "", indent = 0, leftPad = 1) {

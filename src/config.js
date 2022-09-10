@@ -9,7 +9,7 @@
  */
 export const config = {
     logging: {
-        level: 1,
+        level: 0,
         /**
          * @enum {LogLevel} Logging level
          */
@@ -20,6 +20,7 @@ export const config = {
             WARN: 3,
             ERROR: 4,
             HELP: 5,
+            SUCCESS: 6,
         }),
     },
     git_pull: [
@@ -38,27 +39,30 @@ export const config = {
              * @enum {SenderChannel} Ports to be written to only by the sender (send to receiver)
              */
             sender: Object.freeze({
-                SEND_GWH_MAIN: 0, // Grow, Weaken, Hack - main channel
-                SEND_GWH_DEADLETTER: 1, // Grow, Weaken, Hack - deadletter channel where messages go to storage until getting destroyed
-                SEND_GWH_COPY: 2, // Grow, Weaken, Hack - copy channel for additional non-critical services
+                SEND_GWH_MAIN: 1, // Grow, Weaken, Hack - main channel
+                SEND_GWH_DEADLETTER: 2, // Grow, Weaken, Hack - deadletter channel where messages go to storage until getting destroyed
+                SEND_GWH_COPY: 3, // Grow, Weaken, Hack - copy channel for additional non-critical services
             }),
             /**
              * @enum {ReceiverChannel} Ports to be written to only by the receiver (send back to sender)
              */
             receiver: Object.freeze({
-                RECV_GWH_MAIN: 3, // Grow, Weaken, Hack - main channel
-                RECV_GWH_DEADLETTER: 4, // Grow, Weaken, Hack - deadletter channel where messages go to storage until getting destroyed
-                RECV_GWH_COPY: 5,
+                RECV_GWH_MAIN: 4, // Grow, Weaken, Hack - main channel
+                RECV_GWH_DEADLETTER: 5, // Grow, Weaken, Hack - deadletter channel where messages go to storage until getting destroyed
+                RECV_GWH_COPY: 6,
             }), // Grow, Weaken, Hack - copy channel for additional non-critical services
         },
         timestamp_format: "YYYY-MM-DD HH:mm:ss:SSSSSSSSS", // https://momentjs.com/docs/#/parsing/string-format/
     },
     libs: [
-        "/vendor/moment.min.js",
+        //"/vendor/moment.min.js",
         "common.js",
         "config.js",
         "ports.js",
         "/testing/hack_receiver.js",
         "/testing/hack_sender.js",
+        "/testing/tree.js",
+        "/testing/ps-hacker.js",
+        "pubsub.js",
     ],
 }

@@ -2,6 +2,8 @@ import { config } from "config"
 
 export const LL = config.logging.levels
 
+const LOG_LEVEL = config.logging.level
+
 /**
  * Deprecated: Read a json.txt file to an object
  * @param {NS} ns
@@ -30,10 +32,10 @@ export async function readJsonTxtFile(ns, filepath) {
  * @param {string} message Log message
  * */
 export async function log(ns, message = "\n", level = LL.DEBUG) {
-    if (level < config.logging.level) return
+    if (level < LOG_LEVEL) return
 
     let levelName = "UNKNOWN"
-    for (const [k, v] of Object.entries(config.logging.levels)) {
+    for (const [k, v] of Object.entries(LL)) {
         if (v == level) {
             levelName = k
             break
@@ -41,4 +43,48 @@ export async function log(ns, message = "\n", level = LL.DEBUG) {
     }
 
     ns.tprint(`${levelName.toUpperCase()} | ${message}`)
+}
+
+// /**
+//  *
+//  * @param {NS} ns
+//  * @param {*} accum
+//  * @param {*} previous
+//  * @param {*} origin
+//  * @returns
+//  */
+// export async function deepscan(
+//     ns,
+//     accum = [],
+//     previous = null,
+//     origin = "home",
+// ) {
+
+//     if (origin == null) return accum
+
+//     const hosts = ns.scan(origin).filter(val => val != previous)
+//     accum.push(...hosts)
+
+//     for (const host of hosts) {
+//         const deeperHosts = await deepscan(ns, accum, origin, host)
+//         accum.push(...deeperHosts)
+//     }
+
+//     return accum
+// }
+
+/**
+ *
+ * @param {NS} ns
+ * @returns
+ */
+export async function deepscan(ns) {
+    let servers = new Set(["."])
+    for (const next of servers)
+        ns.scan(next).forEach(server => servers.add(server))
+    return [...servers]
+}
+
+export function isObject(value) {
+    return !!(value && typeof value === "object" && !Array.isArray(value))
 }

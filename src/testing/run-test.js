@@ -1,6 +1,6 @@
-import { LL, log } from "./common.js"
-import { config } from "./config.js"
-import { SyncLibraries } from "./worker-init.js"
+import { LL, log } from "common"
+import { config } from "config"
+import { InstallHosts } from "worker-init"
 
 /**
  * @param {NS} ns NetScript namespace
@@ -9,14 +9,22 @@ export async function main(ns) {
     const hosts = ["joesguns"]
     await log(ns, `Starting tests on ${hosts}`, LL.INFO)
 
-    await log(ns, `Syncing libs to ${hosts}`, LL.INFO)
-    await SyncLibraries(ns, hosts)
+    await log(ns, `Doing base install to ${hosts}`, LL.INFO)
 
-    await log(ns, `Putting up networking for home->joesguns `, LL.INFO)
+    ns.kill("testing/hack_sender.js", "home", 1, "joesguns")
+    await InstallHosts(ns, hosts, true)
 
-    //ns.exec(script: string, host: string, numThreads?: number, ...args: (string | number | boolean)[]): number
-    await ns.exec("testing/hack_sender.js", "home", 1, "joesguns") // Start sending data to receiver
+    await log(ns, `Setting up networking for home->joesguns `, LL.INFO)
+
+    await log(ns, `Flushing send ports`, LL.INFO)
+    for (const [channel, port] of Object.entries(config.io.channels.sender)) {
+        ns.clearPort(port)
+        await log(ns, `Flushed ${channel}`, LL.INFO)
+    }
+
+    await log(ns, `Networking configured. `, LL.INFO)
+
+    await log(ns, `Starting test scripts. `, LL.INFO)
+    await ns.exec("testing/hack_sender.js", "home", 1, "hack-cluster") // Start sending data to receiver
     await ns.exec("testing/hack_receiver.js", "joesguns", 1) // Start reading data on receiver
-
-    await log(ns, `Networking established. `, LL.INFO)
 }

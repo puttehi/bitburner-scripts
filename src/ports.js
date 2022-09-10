@@ -5,10 +5,12 @@
 //var moment = require("//vendor/moment.min")
 //import moment from "https://momentjs.com/downloads/moment.js"
 //var moment = import("https://momentjs.com/downloads/moment.js").moment
-var moment = import("./vendor/moment.min.js").moment
+//var moment = import("./vendor/moment.min.js").moment
 //import { moment } from "./vendor/moment.min.js"
-import { config } from "./config.js"
-import { log, LL } from "./common.js"
+import { config } from "config.js"
+import { log, LL } from "common.js"
+
+// Message metadatas
 
 /**
  * @typedef {Object} MessageMetadata
@@ -38,16 +40,77 @@ import { log, LL } from "./common.js"
  */
 
 /**
+ * @typedef {Object} HackRequestMetadata
+ * @property {string} target Target for execution
+ * @global
+ */
+
+/**
+ * @typedef {Object} HackRequestResponseMetadata
+ * @property {OriginalHackRequestData} request
+ * @property {number} stolenMoney Stolen money as a result of the original request
+ * @global
+ */
+
+// Messages
+
+/**
+ * @typedef {Object} MessageData
+ * @property {MessageMetadata} meta Message metadata
+ * @global
+ */
+
+/**
+ * @typedef {Object} ScriptExecutionMessageData
+ * @property {MessageMetadata} meta Message metadata
+ * @property {ScriptExecutionMetadata} exec_meta
+ * @global
+ */
+
+/**
  * @typedef {Object} HackRequestMessageData
  * @property {MessageMetadata} meta Message metadata
  * @property {ScriptExecutionMetadata} exec_meta Script execution metadata (script, threads)
- * @property {string} target Target for execution
+ * @property {HackRequestMetadata} hack_meta Hack request metadata
+ * @global
+ * @typedef {HackRequestMessageData} OriginalHackRequestData
  */
 
-const SEND_CHANNELS = config.io.channels.sender
-const RECV_CHANNELS = config.io.channels.receiver
+/**
+ * @typedef {Object} HackRequestResponseData
+ * @property {MessageMetadata} meta Message metadata
+ * @property {OriginalHackRequestData} request // Original request
+ * @property {number} stolenMoney // Stolen money as a result of the original request
+ * @global
+ */
 
-let _next_id = 0
+const MESSAGE_TYPES = {
+    HACK_REQUEST: "hack-request",
+    HACK_REQUEST_RESPONSE: "hack-request-response",
+}
+
+// Read config
+
+/**
+ * Get values of config.io.channels.* for readPort, writePort
+ * @param {import("./config").SenderChannel} channelsConfig
+ * @returns {number[]} Values of `channelsPorts`
+ */
+const readConfigChannels = channelsConfig => {
+    const channels = Object.keys(channelsConfig)
+
+    const channelsAsPorts = []
+    for (const channel of channels) {
+        channelsAsPorts.push(channelsConfig[channel])
+    }
+
+    return channelsAsPorts
+}
+
+const SEND_CHANNELS = readConfigChannels(config.io.channels.sender)
+const RECV_CHANNELS = readConfigChannels(config.io.channels.receiver)
+
+var _nextId = 0
 
 /**
  *
@@ -81,9 +144,9 @@ function CreateMessageMetadata(
 }
 
 function NextMessageId() {
-    const id = _next_id
+    const id = _nextId
 
-    _next_id += 1
+    _nextId += 1
 
     return id
 }
@@ -91,9 +154,11 @@ function NextMessageId() {
 function CreateTimestamp(ns) {
     const format = config.io.timestamp_format
 
-    log(ns, moment, LL.DEBUG)
+    //log(ns, moment, LL.DEBUG)
 
-    const timestamp = moment().format(format)
+    //const timestamp = moment().format(format)
+
+    const timestamp = format // TODO: DEBUG
 
     return timestamp
 }
@@ -128,11 +193,13 @@ function CreateHackRequestMessage(
         send_max_rejects
     )
     const exec_meta = CreateScriptExecutionMetadata(ns, script, threads)
+    const hack_meta = CreateHackRequestMetadata(ns, target)
     const message = {
         meta: meta,
         exec_meta: exec_meta,
-        target: target,
+        hack_meta: hack_meta,
     }
+    message.meta.type = MESSAGE_TYPES.HACK_REQUEST
 
     return message
 }
@@ -151,6 +218,20 @@ function CreateScriptExecutionMetadata(ns, script, threads = 1) {
     }
 
     return exec_meta
+}
+
+/**
+ *
+ * @param {NS} ns ns
+ * @param {string} target Hack target
+ * @returns {HackRequestMetadata} Script execution metadata to attach to a script execution message
+ */
+function CreateHackRequestMetadata(ns, target) {
+    const hack_meta = {
+        target: target,
+    }
+
+    return hack_meta
 }
 
 /**
@@ -193,6 +274,47 @@ export async function SendHackRequestMessage(
 }
 
 /**
+ *
+ * @param {NS} ns
+ * @param {OriginalHackRequestData} originalRequest Original hack request
+ * @param {number} stolenMoney Stolen money
+ * @returns {boolean} Was message sent?
+ */
+export async function SendHackRequestResponse(
+    ns,
+    originalRequest,
+    stolenMoney
+) {
+    const sender = ns.getHostname() // This library will be on every machine, so it will be called "locally"
+    const max_rejections_by_recipient = 10
+    const max_retries = 10
+    const meta = CreateMessageMetadata(
+        ns,
+        sender,
+        originalRequest.meta.sender,
+        max_rejections_by_recipient,
+        max_retries
+    )
+    /**
+     * @type {HackRequestResponseData} response
+     */
+    const response = {
+        meta: meta,
+        request: originalRequest,
+        stolenMoney: stolenMoney,
+    }
+    response.meta.type = MESSAGE_TYPES.HACK_REQUEST_RESPONSE
+
+    const success = await SendToReceiver(
+        ns,
+        config.io.channels.sender.SEND_GWH_MAIN,
+        response
+    )
+
+    return success
+}
+
+/**
  * Send a message to a receiver.
  * @param {NS} ns NetScript namespace
  * @param {import("./config").SenderChannel} channel Sender channel to write to
@@ -200,14 +322,15 @@ export async function SendHackRequestMessage(
  * @returns {boolean} Was message sent?
  */
 export async function SendToReceiver(ns, channel, message) {
-    if (!(channel in SEND_CHANNELS)) {
+    if (SEND_CHANNELS.findIndex(val => val == channel) == -1) {
         // User error
         await log(
             ns,
-            `[SendToReceiver] Invalid channel: ${channel} - Valid channels: ${SEND_CHANNELS}`,
+            `[SendToReceiver] Invalid channel: ${channel} - Valid channels: ${JSON.stringify(
+                SEND_CHANNELS
+            )}`,
             LL.ERROR
         )
-        return false
     }
 
     try {
@@ -244,7 +367,7 @@ export async function ReadFromSender(ns, channel) {
         //ns.readPort(port:number)
         const data = ns.readPort(channel)
         if (data != "NULL PORT DATA") {
-            message = JSON.parse(stringified)
+            message = JSON.parse(data)
         }
     } catch (err) {
         await log(ns, err, LL.ERROR)
