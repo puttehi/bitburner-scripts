@@ -14,10 +14,10 @@ async function log(
 
 export async function main(ns: NS): Promise<void> {
     let subscribed = false
-    while (!subscribed) {
-        subscribed = await Subscribe(ns, "hack-request", messageHandler)
-        await ns.sleep(1000)
-    }
+    //  while (!subscribed) {
+    subscribed = await Subscribe(ns, "hack-request", await messageHandler)
+    await ns.sleep(1000)
+    //    }
 
     while (true) {
         await ns.sleep(1000) // Keep alive

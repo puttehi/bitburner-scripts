@@ -21,60 +21,64 @@ export interface ISubscriberMetadata {
     subscriber: string
     callback: MessageHandlerCallback
 }
-type Subscriptions = Record<string, Array<ISubscriberMetadata>>
+export type Subscriptions = Record<string, Array<ISubscriberMetadata>>
 
-let _subscriptions: Subscriptions = {
-    "hack-request": [],
-    "hack-request-response": [],
-}
-let _lock = false
+// class PubSub {
+//     static _subscriptions: Subscriptions = {
+//         "hack-request": [],
+//         "hack-request-response": [],
+//     }
+//     static _lock = false
 
-async function setSubscriptions(
-    ns: NS,
-    newSubscriptions: Subscriptions
-): Promise<void> {
-    while (_lock) await ns.sleep(50)
+//     static async setSubscriptions(
+//         ns: NS,
+//         newSubscriptions: Subscriptions
+//     ): Promise<void> {
+//         while (PubSub._lock) await ns.sleep(50)
 
-    _lock = true
-    const subscriptionsBefore: Subscriptions = JSON.parse(
-        JSON.stringify(_subscriptions)
-    )
-    _subscriptions = JSON.parse(JSON.stringify(newSubscriptions))
-    await log(
-        ns,
-        `_subscriptions before: ${JSON.stringify(subscriptionsBefore)}`,
-        //`_subscriptions: ${await tree(ns, _subscriptions)}`,
-        "[setSubscriptions]",
-        LL.TRACE
-    )
-    await log(
-        ns,
-        `_subscriptions after: ${JSON.stringify(_subscriptions)}`,
-        //`_subscriptions: ${await tree(ns, _subscriptions)}`,
-        "[setSubscriptions]",
-        LL.TRACE
-    )
-    _lock = false
-}
+//         PubSub._lock = true
+//         const subscriptionsBefore: Subscriptions = JSON.parse(
+//             JSON.stringify(PubSub._subscriptions)
+//         )
+//         PubSub._subscriptions = JSON.parse(JSON.stringify(newSubscriptions))
+//         await log(
+//             ns,
+//             `_subscriptions before: ${JSON.stringify(subscriptionsBefore)}`,
+//             //`_subscriptions: ${await tree(ns, _subscriptions)}`,
+//             "[setSubscriptions]",
+//             LL.TRACE
+//         )
+//         await log(
+//             ns,
+//             `_subscriptions after: ${JSON.stringify(PubSub._subscriptions)}`,
+//             //`_subscriptions: ${await tree(ns, _subscriptions)}`,
+//             "[setSubscriptions]",
+//             LL.TRACE
+//         )
+//         PubSub._lock = false
+//     }
 
-async function getSubscriptions(ns: NS): Promise<Subscriptions> {
-    while (_lock) await ns.sleep(50)
-    await log(
-        ns,
-        `_subscriptions: ${JSON.stringify(_subscriptions)}`,
-        //`_subscriptions: ${await tree(ns, _subscriptions)}`,
-        "[getSubscriptions]",
-        LL.TRACE
-    )
-    return JSON.parse(JSON.stringify(_subscriptions))
-}
+//     static async getSubscriptions(ns: NS): Promise<Subscriptions> {
+//         while (PubSub._lock) await ns.sleep(50)
+//         await log(
+//             ns,
+//             `_subscriptions: ${JSON.stringify(PubSub._subscriptions)}`,
+//             //`_subscriptions: ${await tree(ns, _subscriptions)}`,
+//             "[getSubscriptions]",
+//             LL.TRACE
+//         )
+//         return JSON.parse(JSON.stringify(PubSub._subscriptions))
+//     }
+// }
+
+let subscriptionAttemptCount = 0
 
 /**
  * Subscribe a host to a message with a specific type and start receiving those types of messages
  * @param ns
  * @param typeStr Type to subscribe to.
  * @param callback Function called on new messages with the message as the argument
- * @param §host Host to subscribe to the message type. If null, current host will be used.
+ * @param host Host to subscribe to the message type. If null, current host will be used.
  */
 export async function Subscribe(
     ns: NS,
@@ -82,9 +86,20 @@ export async function Subscribe(
     callback: MessageHandlerCallback,
     host: string | null = null
 ): Promise<boolean> {
+    await log(ns, `Subattempts: ${subscriptionAttemptCount}`)
+    subscriptionAttemptCount += 1
     const typeStr = String(type)
     const subscriber = host || ns.getHostname()
-    const subscriptions = await getSubscriptions(ns)
+    //const subscriptions = await PubSub.getSubscriptions(ns)
+    await ns.writePort(1, JSON.stringify({ getSubscriptions: true }))
+    let subscriptions: Subscriptions | null = null
+    do {
+        const data = await ns.readPort(2)
+        if ((data as string) != "NULL PORT DATA")
+            subscriptions = JSON.parse(data as string)
+
+        await ns.sleep(10)
+    } while (subscriptions == null)
     if (!isObject(subscriptions)) {
         await log(
             ns,
@@ -136,19 +151,26 @@ export async function Subscribe(
         "[subscribe]",
         LL.TRACE
     )
-    await setSubscriptions(ns, currentSubscriptions)
-    const after: Subscriptions = await getSubscriptions(ns)
-    await log(
-        ns,
-        `Subscriptions after: ${JSON.stringify(after)}`,
-        "[subscribe]",
-        after ? LL.INFO : LL.ERROR
+    //await PubSub.setSubscriptions(ns, currentSubscriptions)
+    await ns.writePort(
+        1,
+        JSON.stringify({
+            setSubscriptions: true,
+            newSubscriptions: currentSubscriptions,
+        })
     )
+    // const after: Subscriptions = await PubSub.getSubscriptions(ns)
+    // await log(
+    // ns,
+    // `Subscriptions after: ${JSON.stringify(after)}`,
+    // "[subscribe]",
+    // after ? LL.INFO : LL.ERROR
+    // )
 
-    if (!after) {
-        // something is wrong
-        return false
-    }
+    //if (!after) {
+    //    // something is wrong
+    //    return false
+    //}
 
     return true
 }
@@ -166,7 +188,20 @@ export async function Unsubscribe(
 ): Promise<void> {
     const typeStr = String(type)
     const subscriber: string = host || ns.getHostname()
-    const currentSubscriptions: Subscriptions = await getSubscriptions(ns)
+
+    // const currentSubscriptions: Subscriptions = await PubSub.getSubscriptions(
+    // ns
+    // )
+    await ns.writePort(1, JSON.stringify({ getSubscriptions: true }))
+    let currentSubscriptions: Subscriptions | null = null
+    do {
+        const data = await ns.readPort(2)
+        if ((data as string) != "NULL PORT DATA")
+            currentSubscriptions = JSON.parse(data as string)
+
+        await ns.sleep(10)
+    } while (currentSubscriptions == null)
+
     const subscribers: Array<ISubscriberMetadata> =
         currentSubscriptions[typeStr]
 
@@ -176,7 +211,14 @@ export async function Unsubscribe(
     newSubscriptions[typeStr] = subscribers.filter(
         val => val.subscriber != subscriber
     ) // remove host
-    await setSubscriptions(ns, newSubscriptions)
+    //await PubSub.setSubscriptions(ns, newSubscriptions)
+    await ns.writePort(
+        1,
+        JSON.stringify({
+            setSubscriptions: true,
+            newSubscriptions: newSubscriptions,
+        })
+    )
 }
 
 /**
@@ -190,7 +232,18 @@ export async function Publish(
     type: string,
     message: Record<string, unknown>
 ): Promise<boolean> {
-    const subscriptions = await getSubscriptions(ns)
+    //const subscriptions = await PubSub.getSubscriptions(ns)
+
+    await ns.writePort(1, JSON.stringify({ getSubscriptions: true }))
+    let subscriptions: Subscriptions | null = null
+    do {
+        const data = await ns.readPort(2)
+        if ((data as string) != "NULL PORT DATA")
+            subscriptions = JSON.parse(data as string)
+
+        await ns.sleep(10)
+    } while (subscriptions == null)
+
     if (!subscriptions) {
         await log(
             ns,

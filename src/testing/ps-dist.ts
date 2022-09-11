@@ -16,14 +16,16 @@ const TARGETS = ["n00dles"]
 
 export async function main(ns: NS): Promise<void> {
     let subscribed = false
-    while (!subscribed) {
-        subscribed = await Subscribe(
-            ns,
-            "hack-request-response",
-            messageHandler as MessageHandlerCallback
-        )
-        await ns.sleep(1000)
-    }
+    //while (!subscribed) {
+    subscribed = await Subscribe(
+        ns,
+        "hack-request-response",
+
+        async (ns, msg) => await messageHandler(ns, msg)
+        //as MessageHandlerCallback
+    )
+    await ns.sleep(1000)
+    //}
 
     let timer = 0
     const every_ms = 20000

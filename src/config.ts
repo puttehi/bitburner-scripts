@@ -24,7 +24,7 @@ export enum ReceiverChannels {
 
 export const config = {
     logging: {
-        level: LogLevels.TRACE,
+        level: LogLevels.DEBUG,
         levels: LogLevels,
         // levels: ({ [val in LogLevel]: number } = {
         //     [LogLevel.TRACE]: val,
